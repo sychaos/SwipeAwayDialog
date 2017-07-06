@@ -23,6 +23,7 @@ public class SwipeableFrameLayout extends FrameLayout {
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         if (mTouchListener != null) {
+            //当有mTouchListener时 直接拦截onTouch事件
             if (mTouchListener.onTouch(this, ev)) {
                 return true;
             }

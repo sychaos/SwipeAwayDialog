@@ -28,9 +28,9 @@ import android.view.ViewGroup;
 /**
  * A {@link View.OnTouchListener} that makes any {@link View} dismissable when the
  * user swipes (drags her finger) horizontally across the view.
- *
+ * <p>
  * <p>Example usage:</p>
- *
+ * <p>
  * <pre>
  * view.setOnTouchListener(new SwipeDismissTouchListener(
  *         view,
@@ -41,7 +41,7 @@ import android.view.ViewGroup;
  *             }
  *         }));
  * </pre>
- *
+ * <p>
  * <p>This class Requires API level 12 or later due to use of {@link
  * android.view.ViewPropertyAnimator}.</p>
  */
@@ -90,13 +90,16 @@ public class SwipeDismissTouchListener implements View.OnTouchListener {
     /**
      * Constructs a new swipe-to-dismiss touch listener for the given view.
      *
-     * @param view     The view to make dismissable.
-     * @param token    An optional token/cookie object to be passed through to the callback.
+     * @param view      The view to make dismissable.
+     * @param token     An optional token/cookie object to be passed through to the callback.
      * @param callbacks The callback to trigger when the user has indicated that she would like to
-     *                 dismiss this view.
+     *                  dismiss this view.
      */
     public SwipeDismissTouchListener(View view, Object token, DismissCallbacks callbacks) {
         ViewConfiguration vc = ViewConfiguration.get(view.getContext());
+
+        //getScaledTouchSlop是一个距离，表示滑动的时候，
+        // 手的移动要大于这个距离才开始移动控件。如果小于这个距离就不触发移动控件，如viewpager就是用这个距离来判断用户是否翻页
         mSlop = vc.getScaledTouchSlop();
         mMinFlingVelocity = vc.getScaledMinimumFlingVelocity() * 16;
         mMaxFlingVelocity = vc.getScaledMaximumFlingVelocity();
@@ -121,10 +124,13 @@ public class SwipeDismissTouchListener implements View.OnTouchListener {
         }
 
         switch (motionEvent.getActionMasked()) {
+            // 一次ACTION_DOWN和ACTION_UP消费一次motionEvent
             case MotionEvent.ACTION_DOWN: {
-                // TODO: ensure this is a finger, and set a flag
+                // 每一次手指按下，记为实例化一个 VelocityTracker
+                // VelocityTracker 是一个跟踪触摸事件滑动速度的帮助类，通过addMovement分析MotionEvent在单位时间类发生的位移来计算速度。
                 mDownX = motionEvent.getRawX();
                 mDownY = motionEvent.getRawY();
+                // 这个token并木有用到
                 if (mCallbacks.canDismiss(mToken)) {
                     mVelocityTracker = VelocityTracker.obtain();
                     mVelocityTracker.addMovement(motionEvent);
@@ -137,26 +143,35 @@ public class SwipeDismissTouchListener implements View.OnTouchListener {
                     break;
                 }
 
+                //mDownX为起点，motionEvent.getRawX()为终点 deltaX为以前按压事件移动的距离
                 float deltaX = motionEvent.getRawX() - mDownX;
                 mVelocityTracker.addMovement(motionEvent);
+                //  VelocityTracker先调用computeCurrentVelocity(int)来初始化速率的单位 。
                 mVelocityTracker.computeCurrentVelocity(1000);
+                //  横向速度
                 float velocityX = mVelocityTracker.getXVelocity();
                 float absVelocityX = Math.abs(velocityX);
                 float absVelocityY = Math.abs(mVelocityTracker.getYVelocity());
                 boolean dismiss = false;
                 final boolean dismissRight;
+                // 当移动距离大于屏幕的ViewWidth的2分之一 并且mSwiping时 进行dimiss操作
                 if (Math.abs(deltaX) > mViewWidth / 2 && mSwiping) {
                     dismiss = true;
+                    // 如果deltaX > 0 向右dimiss
                     dismissRight = deltaX > 0;
+                    // 当横轴移动速率大于最小速率并且大于最大速率时
                 } else if (mMinFlingVelocity <= absVelocityX && absVelocityX <= mMaxFlingVelocity
                         && absVelocityY < absVelocityX
                         && absVelocityY < absVelocityX && mSwiping) {
-                    // dismiss only if flinging in the same direction as dragging
+                    // 当速率方向与移动方向一致时 进行dimiss
                     dismiss = (velocityX < 0) == (deltaX < 0);
+                    // 当速率>0时 向右dimiss
                     dismissRight = mVelocityTracker.getXVelocity() > 0;
                 } else {
                     dismissRight = false;
                 }
+
+                //mTiltEnabled设置是否旋转
                 if (dismiss) {
                     // dismiss
                     mView.animate()
@@ -170,6 +185,7 @@ public class SwipeDismissTouchListener implements View.OnTouchListener {
                                     performDismiss(dismissRight);
                                 }
                             });
+                    // mSwiping指翻滚中 翻滚状态下如果不满足dimiss的操作 会停止动画 还原
                 } else if (mSwiping) {
                     // cancel
                     mView.animate()
@@ -189,10 +205,12 @@ public class SwipeDismissTouchListener implements View.OnTouchListener {
             }
 
             case MotionEvent.ACTION_CANCEL: {
+                //如果没走ACTION_DOWN 无视他
                 if (mVelocityTracker == null) {
                     break;
                 }
 
+                //停止动画 还原
                 mView.animate()
                         .translationX(0)
                         .rotation(0)
@@ -209,6 +227,7 @@ public class SwipeDismissTouchListener implements View.OnTouchListener {
             }
 
             case MotionEvent.ACTION_MOVE: {
+                //如果没走ACTION_DOWN 无视他
                 if (mVelocityTracker == null) {
                     break;
                 }
@@ -216,6 +235,7 @@ public class SwipeDismissTouchListener implements View.OnTouchListener {
                 mVelocityTracker.addMovement(motionEvent);
                 float deltaX = motionEvent.getRawX() - mDownX;
                 float deltaY = motionEvent.getRawY() - mDownY;
+                //如果x轴移动距离大于 离开控件的距离 并且Y轴移动小于x轴二分之一
                 if (Math.abs(deltaX) > mSlop && Math.abs(deltaY) < Math.abs(deltaX) / 2) {
                     mSwiping = true;
                     mSwipingSlop = (deltaX > 0 ? mSlop : -mSlop);
@@ -229,12 +249,14 @@ public class SwipeDismissTouchListener implements View.OnTouchListener {
                     mView.onTouchEvent(cancelEvent);
                     cancelEvent.recycle();
                 }
-
+                // 设置拖拽中的动画
                 if (mSwiping) {
                     mTranslationX = deltaX;
+                    //设置左右偏移量
                     mView.setTranslationX(deltaX - mSwipingSlop);
+                    //设置翻滚角度
                     mView.setRotation(mTiltEnabled ? 45f * deltaX / mViewWidth : 0f);
-                    // TODO: use an ease-out interpolator or such
+                    //设置透明度
                     mView.setAlpha(Math.max(0f, Math.min(1f, 1f - 2f * Math.abs(deltaX) / mViewWidth)));
                     return true;
                 }
@@ -244,6 +266,7 @@ public class SwipeDismissTouchListener implements View.OnTouchListener {
         return false;
     }
 
+    // 执行dimiss操作
     private void performDismiss(final boolean toRight) {
         // Animate the dismissed view to zero-height and then fire the dismiss callback.
         // This triggers layout on each animation frame; in the future we may want to do something
@@ -257,8 +280,9 @@ public class SwipeDismissTouchListener implements View.OnTouchListener {
         animator.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
+                //回调
                 mCallbacks.onDismiss(mView, toRight, mToken);
-                // Reset view presentation
+                //重置View 如果你在onDismiss中dimiss了dialog是看不到效果的
                 mView.setAlpha(1f);
                 mView.setTranslationX(0);
                 mView.setRotation(0);
@@ -267,6 +291,7 @@ public class SwipeDismissTouchListener implements View.OnTouchListener {
             }
         });
 
+        // TODO 防止View的动画导致的长度变化 并不确定
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator valueAnimator) {

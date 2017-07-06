@@ -64,7 +64,8 @@ public class SwipeAwayDialogFragment extends DialogFragment {
 
         if (!mSwipeLayoutGenerated && getShowsDialog()) {
             Window window = getDialog().getWindow();
-            ViewGroup decorView = (ViewGroup)window.getDecorView();
+            //TODO 还没看懂 但是思路一定是 截获View中的content然后加在SwipeableFrameLayout里
+            ViewGroup decorView = (ViewGroup) window.getDecorView();
             View content = decorView.getChildAt(0);
             decorView.removeView(content);
 
@@ -72,6 +73,7 @@ public class SwipeAwayDialogFragment extends DialogFragment {
             layout.addView(content);
             decorView.addView(layout);
 
+            //  回调不解释
             mListener = new SwipeDismissTouchListener(decorView, "layout", new SwipeDismissTouchListener.DismissCallbacks() {
                 @Override
                 public boolean canDismiss(Object token) {
@@ -85,6 +87,8 @@ public class SwipeAwayDialogFragment extends DialogFragment {
                     }
                 }
             });
+
+            //  mTiltEnabled设置是否旋转
             mListener.setTiltEnabled(mTiltEnabled);
             layout.setSwipeDismissTouchListener(mListener);
             layout.setOnTouchListener(mListener);
