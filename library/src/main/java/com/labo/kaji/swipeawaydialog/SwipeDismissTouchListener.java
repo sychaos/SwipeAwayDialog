@@ -312,8 +312,8 @@ public class SwipeDismissTouchListener implements View.OnTouchListener {
                     mTranslationX = deltaX;
                     mTranslationY = deltaY;
                     //设置左右偏移量
-                    mView.setTranslationX(deltaX - mSwipingSlop);
-                    mView.setTranslationY(deltaY - mSwipingSlop);
+                    mView.setTranslationX(deltaX);
+                    mView.setTranslationY(deltaY);
                     //设置翻滚角度
                     mView.setRotation(mTiltEnabled ? 45f * deltaX / mViewWidth : 0f);
                     //设置透明度
