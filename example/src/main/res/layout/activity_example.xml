@@ -1,12 +1,11 @@
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context=".ExampleActivity">
 
     <ScrollView
@@ -18,56 +17,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:orientation="vertical"
-            android:gravity="center_horizontal">
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
 
-            <Button
-                android:id="@+id/button_appcompat_alert"
+            <ImageView
+                android:id="@+id/logo_cloudist"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="AppCompat\nAlert"/>
-
-            <Button
-                android:id="@+id/button_appcompat_list"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="AppCompat\nList"/>
-
-            <Button
-                android:id="@+id/button_default_alert"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Default\nAlert"/>
-
-            <Button
-                android:id="@+id/button_default_list"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Default\nList"/>
-
-            <Button
-                android:id="@+id/button_progress"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Progress"/>
-
-            <Button
-                android:id="@+id/button_date"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Date"/>
-
-            <Button
-                android:id="@+id/button_time"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Time"/>
-
-            <Button
-                android:id="@+id/button_custom"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Custom"/>
+                android:src="@drawable/logo_cloudist"
+                android:text="AppCompat\nAlert" />
 
         </LinearLayout>
 

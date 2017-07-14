@@ -15,6 +15,7 @@ public class SwipeAwayDialogFragment extends DialogFragment {
     private boolean mTiltEnabled = true;
     private boolean mSwipeLayoutGenerated = false;
     private SwipeDismissTouchListener mListener = null;
+    private Window window;
 
     /**
      * Set whether dialog can be swiped away.
@@ -49,6 +50,7 @@ public class SwipeAwayDialogFragment extends DialogFragment {
 
     /**
      * Called when dialog is swiped away to dismiss.
+     *
      * @return true to prevent dismissing
      */
     public boolean onSwipedAway(boolean toRight) {
@@ -60,8 +62,8 @@ public class SwipeAwayDialogFragment extends DialogFragment {
         super.onStart();
 
         if (!mSwipeLayoutGenerated && getShowsDialog()) {
-            Window window = getDialog().getWindow();
-            ViewGroup decorView = (ViewGroup)window.getDecorView();
+            final Window window = getDialog().getWindow();
+            ViewGroup decorView = (ViewGroup) window.getDecorView();
             View content = decorView.getChildAt(0);
             decorView.removeView(content);
 
@@ -69,25 +71,43 @@ public class SwipeAwayDialogFragment extends DialogFragment {
             layout.addView(content);
             decorView.addView(layout);
 
-            mListener = new SwipeDismissTouchListener(decorView, "layout", new SwipeDismissTouchListener.DismissCallbacks() {
-                @Override
-                public boolean canDismiss(Object token) {
-                    return isCancelable() && mSwipeable;
-                }
+            mListener = new SwipeDismissTouchListener(decorView, "layout",
+                    new SwipeDismissTouchListener.SwipingCallbacks() {
+                        @Override
+                        public void onSwiping(float max) {
+                            window.setBackgroundDrawableResource(android.R.color.transparent);
+                        }
 
-                @Override
-                public void onDismiss(View view, boolean toRight, Object token) {
-                    if (!onSwipedAway(toRight)) {
-                        dismiss();
-                    }
-                }
-            });
+                        @Override
+                        public void onStopping() {
+                            window.setBackgroundDrawableResource(android.R.color.darker_gray);
+                        }
+                    },
+                    new SwipeDismissTouchListener.DismissCallbacks() {
+                        @Override
+                        public boolean canDismiss(Object token) {
+                            return isCancelable() && mSwipeable;
+                        }
+
+                        @Override
+                        public void onDismiss(View view, boolean toRight, Object token) {
+                            if (!onSwipedAway(toRight)) {
+                                dismiss();
+                            }
+                        }
+                    });
             mListener.setTiltEnabled(mTiltEnabled);
             layout.setSwipeDismissTouchListener(mListener);
             layout.setOnTouchListener(mListener);
             layout.setClickable(true);
             mSwipeLayoutGenerated = true;
         }
+    }
+
+    public void onResume() {
+        window = getDialog().getWindow();
+        window.setBackgroundDrawableResource(android.R.color.darker_gray);
+        super.onResume();
     }
 
 }

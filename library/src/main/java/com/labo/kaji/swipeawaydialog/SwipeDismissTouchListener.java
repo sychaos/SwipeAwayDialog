@@ -55,6 +55,7 @@ public class SwipeDismissTouchListener implements View.OnTouchListener {
     // Fixed properties
     private View mView;
     private DismissCallbacks mCallbacks;
+    private SwipingCallbacks mSwipingCallbacks;
     private int mViewWidth = 1; // 1 and not 0 to prevent dividing by zero
     private int mViewHeight = 1;
 
@@ -89,6 +90,13 @@ public class SwipeDismissTouchListener implements View.OnTouchListener {
         void onDismiss(View view, boolean toRight, Object token);
     }
 
+    public interface SwipingCallbacks {
+
+        void onSwiping(float degree);
+
+        void onStopping();
+    }
+
     /**
      * Constructs a new swipe-to-dismiss touch listener for the given view.
      *
@@ -110,6 +118,30 @@ public class SwipeDismissTouchListener implements View.OnTouchListener {
         mView = view;
         mToken = token;
         mCallbacks = callbacks;
+    }
+
+    /**
+     * Constructs a new swipe-to-dismiss touch listener for the given view.
+     *
+     * @param view      The view to make dismissable.
+     * @param token     An optional token/cookie object to be passed through to the callback.
+     * @param callbacks The callback to trigger when the user has indicated that she would like to
+     *                  dismiss this view.
+     */
+    public SwipeDismissTouchListener(View view, Object token, SwipingCallbacks swipingCallbacks, DismissCallbacks callbacks) {
+        ViewConfiguration vc = ViewConfiguration.get(view.getContext());
+
+        //getScaledTouchSlop是一个距离，表示滑动的时候，
+        // 手的移动要大于这个距离才开始移动控件。如果小于这个距离就不触发移动控件，如viewpager就是用这个距离来判断用户是否翻页
+        mSlop = vc.getScaledTouchSlop();
+        mMinFlingVelocity = vc.getScaledMinimumFlingVelocity() * 16;
+        mMaxFlingVelocity = vc.getScaledMaximumFlingVelocity();
+        mAnimationTime = view.getContext().getResources().getInteger(
+                android.R.integer.config_shortAnimTime);
+        mView = view;
+        mToken = token;
+        mCallbacks = callbacks;
+        mSwipingCallbacks = swipingCallbacks;
     }
 
     public void setTiltEnabled(boolean tiltEnabled) {
@@ -197,6 +229,9 @@ public class SwipeDismissTouchListener implements View.OnTouchListener {
                                     performDismiss(dismissRight);
                                 }
                             });
+                    if (mSwipingCallbacks != null) {
+                        mSwipingCallbacks.onSwiping(0);
+                    }
                     // mSwiping指翻滚中 翻滚状态下如果不满足dimiss的操作 会停止动画 还原
                 } else if (mSwiping) {
                     // cancel
@@ -207,6 +242,9 @@ public class SwipeDismissTouchListener implements View.OnTouchListener {
                             .alpha(1)
                             .setDuration(mAnimationTime)
                             .setListener(null);
+                    if (mSwipingCallbacks != null) {
+                        mSwipingCallbacks.onStopping();
+                    }
                 }
                 mVelocityTracker.recycle();
                 mVelocityTracker = null;
@@ -232,6 +270,9 @@ public class SwipeDismissTouchListener implements View.OnTouchListener {
                         .alpha(1)
                         .setDuration(mAnimationTime)
                         .setListener(null);
+                if (mSwipingCallbacks != null) {
+                    mSwipingCallbacks.onStopping();
+                }
                 mVelocityTracker.recycle();
                 mVelocityTracker = null;
                 mTranslationX = 0;
@@ -278,6 +319,10 @@ public class SwipeDismissTouchListener implements View.OnTouchListener {
                     //设置透明度
                     float minAlpha = Math.min(1f - 2f * Math.abs(deltaY) / mViewHeight, 1f - 2f * Math.abs(deltaX) / mViewWidth);
                     mView.setAlpha(Math.max(0f, Math.min(1f, minAlpha)));
+
+                    if (mSwipingCallbacks != null) {
+                        mSwipingCallbacks.onSwiping(Math.max(0f, Math.min(1f, minAlpha)));
+                    }
                     return true;
                 }
                 break;

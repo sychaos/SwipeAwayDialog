@@ -1,6 +1,7 @@
 package com.labo.kaji.swipeawaydialog.example;
 
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 
 import com.labo.kaji.swipeawaydialog.example.ExampleDialogFragment.Type;
@@ -21,44 +22,8 @@ public class ExampleActivity extends AppCompatActivity {
         ButterKnife.bind(this);
     }
 
-    @OnClick(R.id.button_appcompat_alert)
+    @OnClick(R.id.logo_cloudist)
     void onShowAppCompatAlertDialog() {
-        ExampleDialogFragment.newInstance(Type.APPCOMPAT).show(getSupportFragmentManager(), "alert");
+        ExampleDialogFragment.newInstance(Type.APPCOMPAT).show(getSupportFragmentManager(),"sddds");
     }
-
-    @OnClick(R.id.button_appcompat_list)
-    void onShowAppCompatListDialog() {
-        ExampleDialogFragment.newInstance(Type.APPCOMPAT_LIST).show(getSupportFragmentManager(), "list");
-    }
-
-    @OnClick(R.id.button_default_alert)
-    void onShowDefaultAlertDialog() {
-        ExampleDialogFragment.newInstance(Type.DEFAULT).show(getSupportFragmentManager(), "alert");
-    }
-
-    @OnClick(R.id.button_default_list)
-    void onShowDefaultListDialog() {
-        ExampleDialogFragment.newInstance(Type.DEFAULT_LIST).show(getSupportFragmentManager(), "list");
-    }
-
-    @OnClick(R.id.button_progress)
-    void onShowProgressDialog() {
-        ExampleDialogFragment.newInstance(Type.PROGRESS).show(getSupportFragmentManager(), "progress");
-    }
-
-    @OnClick(R.id.button_date)
-    void onShowDateDialog() {
-        ExampleDialogFragment.newInstance(Type.DATE).show(getSupportFragmentManager(), "date");
-    }
-
-    @OnClick(R.id.button_time)
-    void onShowTimeDialog() {
-        ExampleDialogFragment.newInstance(Type.TIME).show(getSupportFragmentManager(), "time");
-    }
-
-    @OnClick(R.id.button_custom)
-    void onShowCustomDialog() {
-        ExampleDialogFragment.newInstance(Type.CUSTOM).show(getSupportFragmentManager(), "custom");
-    }
-
 }
