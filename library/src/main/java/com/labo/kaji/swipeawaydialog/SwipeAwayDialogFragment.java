@@ -71,26 +71,21 @@ public class SwipeAwayDialogFragment extends DialogFragment {
             layout.addView(content);
             decorView.addView(layout);
 
-            mListener = new SwipeDismissTouchListener(decorView, "layout",
+            mListener = new SwipeDismissTouchListener(decorView,
                     new SwipeDismissTouchListener.SwipingCallbacks() {
                         @Override
                         public void onSwiping(float max) {
                             window.setBackgroundDrawableResource(android.R.color.transparent);
                         }
-
-                        @Override
-                        public void onStopping() {
-                            window.setBackgroundDrawableResource(android.R.color.darker_gray);
-                        }
                     },
                     new SwipeDismissTouchListener.DismissCallbacks() {
                         @Override
-                        public boolean canDismiss(Object token) {
+                        public boolean canDismiss() {
                             return isCancelable() && mSwipeable;
                         }
 
                         @Override
-                        public void onDismiss(View view, boolean toRight, Object token) {
+                        public void onDismiss(View view, boolean toRight) {
                             if (!onSwipedAway(toRight)) {
                                 dismiss();
                             }
@@ -106,7 +101,6 @@ public class SwipeAwayDialogFragment extends DialogFragment {
 
     public void onResume() {
         window = getDialog().getWindow();
-        window.setBackgroundDrawableResource(android.R.color.darker_gray);
         super.onResume();
     }
 

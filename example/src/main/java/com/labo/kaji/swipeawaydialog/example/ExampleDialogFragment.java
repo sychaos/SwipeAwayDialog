@@ -1,20 +1,11 @@
 package com.labo.kaji.swipeawaydialog.example;
 
-import android.app.AlertDialog;
-import android.app.DatePickerDialog;
 import android.app.Dialog;
-import android.app.ProgressDialog;
-import android.app.TimePickerDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatDialog;
-import android.widget.ImageView;
-
-import com.bumptech.glide.Glide;
 import com.labo.kaji.swipeawaydialog.support.v4.SwipeAwayDialogFragment;
 
-import java.util.Calendar;
 import java.util.Random;
 
 /**

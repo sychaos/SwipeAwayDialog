@@ -63,8 +63,6 @@ public class SwipeDismissTouchListener implements View.OnTouchListener {
     private float mDownX;
     private float mDownY;
     private boolean mSwiping;
-    private int mSwipingSlop;
-    private Object mToken;
     private VelocityTracker mVelocityTracker;
     private float mTranslationX;
     private float mTranslationY;
@@ -79,33 +77,30 @@ public class SwipeDismissTouchListener implements View.OnTouchListener {
         /**
          * Called to determine whether the view can be dismissed.
          */
-        boolean canDismiss(Object token);
+        boolean canDismiss();
 
         /**
          * Called when the user has indicated they she would like to dismiss the view.
          *
          * @param view  The originating {@link View} to be dismissed.
-         * @param token The optional token passed to this object's constructor.
          */
-        void onDismiss(View view, boolean toRight, Object token);
+        void onDismiss(View view, boolean toRight);
     }
 
     public interface SwipingCallbacks {
 
         void onSwiping(float degree);
 
-        void onStopping();
     }
 
     /**
      * Constructs a new swipe-to-dismiss touch listener for the given view.
      *
      * @param view      The view to make dismissable.
-     * @param token     An optional token/cookie object to be passed through to the callback.
      * @param callbacks The callback to trigger when the user has indicated that she would like to
      *                  dismiss this view.
      */
-    public SwipeDismissTouchListener(View view, Object token, DismissCallbacks callbacks) {
+    public SwipeDismissTouchListener(View view, DismissCallbacks callbacks) {
         ViewConfiguration vc = ViewConfiguration.get(view.getContext());
 
         //getScaledTouchSlop是一个距离，表示滑动的时候，
@@ -116,7 +111,6 @@ public class SwipeDismissTouchListener implements View.OnTouchListener {
         mAnimationTime = view.getContext().getResources().getInteger(
                 android.R.integer.config_shortAnimTime);
         mView = view;
-        mToken = token;
         mCallbacks = callbacks;
     }
 
@@ -124,11 +118,10 @@ public class SwipeDismissTouchListener implements View.OnTouchListener {
      * Constructs a new swipe-to-dismiss touch listener for the given view.
      *
      * @param view      The view to make dismissable.
-     * @param token     An optional token/cookie object to be passed through to the callback.
      * @param callbacks The callback to trigger when the user has indicated that she would like to
      *                  dismiss this view.
      */
-    public SwipeDismissTouchListener(View view, Object token, SwipingCallbacks swipingCallbacks, DismissCallbacks callbacks) {
+    public SwipeDismissTouchListener(View view, SwipingCallbacks swipingCallbacks, DismissCallbacks callbacks) {
         ViewConfiguration vc = ViewConfiguration.get(view.getContext());
 
         //getScaledTouchSlop是一个距离，表示滑动的时候，
@@ -139,7 +132,6 @@ public class SwipeDismissTouchListener implements View.OnTouchListener {
         mAnimationTime = view.getContext().getResources().getInteger(
                 android.R.integer.config_shortAnimTime);
         mView = view;
-        mToken = token;
         mCallbacks = callbacks;
         mSwipingCallbacks = swipingCallbacks;
     }
@@ -169,7 +161,7 @@ public class SwipeDismissTouchListener implements View.OnTouchListener {
                 mDownX = motionEvent.getRawX();
                 mDownY = motionEvent.getRawY();
                 // 这个token并木有用到
-                if (mCallbacks.canDismiss(mToken)) {
+                if (mCallbacks.canDismiss()) {
                     mVelocityTracker = VelocityTracker.obtain();
                     mVelocityTracker.addMovement(motionEvent);
                 }
@@ -243,7 +235,7 @@ public class SwipeDismissTouchListener implements View.OnTouchListener {
                             .setDuration(mAnimationTime)
                             .setListener(null);
                     if (mSwipingCallbacks != null) {
-                        mSwipingCallbacks.onStopping();
+                        mSwipingCallbacks.onSwiping(1);
                     }
                 }
                 mVelocityTracker.recycle();
@@ -271,7 +263,7 @@ public class SwipeDismissTouchListener implements View.OnTouchListener {
                         .setDuration(mAnimationTime)
                         .setListener(null);
                 if (mSwipingCallbacks != null) {
-                    mSwipingCallbacks.onStopping();
+                    mSwipingCallbacks.onSwiping(1);
                 }
                 mVelocityTracker.recycle();
                 mVelocityTracker = null;
@@ -296,7 +288,6 @@ public class SwipeDismissTouchListener implements View.OnTouchListener {
                 if (Math.abs(deltaX) > mSlop
                         || Math.abs(deltaY) > mSlop) {
                     mSwiping = true;
-                    mSwipingSlop = (deltaX > 0 ? mSlop : -mSlop);
                     mView.getParent().requestDisallowInterceptTouchEvent(true);
 
                     // Cancel listview's touch
@@ -346,7 +337,7 @@ public class SwipeDismissTouchListener implements View.OnTouchListener {
             @Override
             public void onAnimationEnd(Animator animation) {
                 //回调
-                mCallbacks.onDismiss(mView, toRight, mToken);
+                mCallbacks.onDismiss(mView, toRight);
                 //重置View 如果你在onDismiss中dimiss了dialog是看不到效果的
                 mView.setAlpha(1f);
                 mView.setTranslationX(0);

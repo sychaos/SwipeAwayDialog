@@ -66,7 +66,8 @@ public class SwipeAwayDialogFragment extends DialogFragment {
 
         if (!mSwipeLayoutGenerated && getShowsDialog()) {
             final Window window = getDialog().getWindow();
-            //TODO 还没看懂 但是思路一定是 截获View中的content然后加在SwipeableFrameLayout里
+            // 还没看懂 但是思路一定是 截获View中的content然后加在SwipeableFrameLayout里
+            // SwipeableFrameLayout里添加SwipeableListener
             ViewGroup decorView = (ViewGroup) window.getDecorView();
             View content = decorView.getChildAt(0);
             decorView.removeView(content);
@@ -76,28 +77,21 @@ public class SwipeAwayDialogFragment extends DialogFragment {
             decorView.addView(layout);
 
             //  回调不解释
-            mListener = new SwipeDismissTouchListener(decorView, "layout", new SwipeDismissTouchListener.SwipingCallbacks() {
+            mListener = new SwipeDismissTouchListener(decorView, new SwipeDismissTouchListener.SwipingCallbacks() {
                 @Override
                 public void onSwiping(float degree) {
                     WindowManager.LayoutParams windowParams = window.getAttributes();
                     windowParams.dimAmount = 0.8f * degree;
                     window.setAttributes(windowParams);
                 }
-
-                @Override
-                public void onStopping() {
-                    WindowManager.LayoutParams windowParams = window.getAttributes();
-                    windowParams.dimAmount = 0.8f;
-                    window.setAttributes(windowParams);
-                }
             }, new SwipeDismissTouchListener.DismissCallbacks() {
                 @Override
-                public boolean canDismiss(Object token) {
+                public boolean canDismiss() {
                     return isCancelable() && mSwipeable;
                 }
 
                 @Override
-                public void onDismiss(View view, boolean toRight, Object token) {
+                public void onDismiss(View view, boolean toRight) {
                     if (!onSwipedAway(toRight)) {
                         dismiss();
                     }
