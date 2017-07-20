@@ -4,18 +4,19 @@ import android.app.DialogFragment;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
 
 /**
  * @author kakajika
  * @since 15/08/15.
  */
-public class SwipeAwayDialogFragment extends DialogFragment {
+public abstract class SwipeAwayDialogFragment extends DialogFragment {
 
-    private boolean mSwipeable = true;
+    public boolean mSwipeable = true;
     private boolean mTiltEnabled = true;
     private boolean mSwipeLayoutGenerated = false;
     private SwipeDismissTouchListener mListener = null;
-    private Window window;
+    public Window window;
 
     /**
      * Set whether dialog can be swiped away.
@@ -63,34 +64,22 @@ public class SwipeAwayDialogFragment extends DialogFragment {
 
         if (!mSwipeLayoutGenerated && getShowsDialog()) {
             final Window window = getDialog().getWindow();
+            // 截获View中的content然后加在SwipeableFrameLayout里
+            // SwipeableFrameLayout里添加SwipeableListener
             ViewGroup decorView = (ViewGroup) window.getDecorView();
             View content = decorView.getChildAt(0);
             decorView.removeView(content);
 
             SwipeableFrameLayout layout = new SwipeableFrameLayout(getActivity());
+            layout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            layout.setBackgroundResource(R.color.transparent);
             layout.addView(content);
             decorView.addView(layout);
 
-            mListener = new SwipeDismissTouchListener(decorView,
-                    new SwipeDismissTouchListener.SwipingCallbacks() {
-                        @Override
-                        public void onSwiping(float max) {
-                            window.setBackgroundDrawableResource(android.R.color.transparent);
-                        }
-                    },
-                    new SwipeDismissTouchListener.DismissCallbacks() {
-                        @Override
-                        public boolean canDismiss() {
-                            return isCancelable() && mSwipeable;
-                        }
+            //  回调不解释
+            mListener = initListener(decorView);
 
-                        @Override
-                        public void onDismiss(View view, boolean toRight) {
-                            if (!onSwipedAway(toRight)) {
-                                dismiss();
-                            }
-                        }
-                    });
+            //  mTiltEnabled设置是否旋转
             mListener.setTiltEnabled(mTiltEnabled);
             layout.setSwipeDismissTouchListener(mListener);
             layout.setOnTouchListener(mListener);
@@ -101,7 +90,15 @@ public class SwipeAwayDialogFragment extends DialogFragment {
 
     public void onResume() {
         window = getDialog().getWindow();
+        window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        window.setBackgroundDrawableResource(R.color.transparent);
+        WindowManager.LayoutParams windowParams = window.getAttributes();
+        windowParams.dimAmount = 0.8f;
+        window.setAttributes(windowParams);
+        // Call super onResume after sizing
         super.onResume();
     }
+
+    public abstract SwipeDismissTouchListener initListener(View decorView);
 
 }

@@ -1,6 +1,9 @@
 package com.labo.kaji.swipeawaydialog;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.FrameLayout;
 
@@ -12,12 +15,18 @@ public class SwipeableFrameLayout extends FrameLayout {
 
     private SwipeDismissTouchListener mTouchListener;
 
-    public SwipeableFrameLayout(Context context) {
+    public SwipeableFrameLayout(@NonNull Context context) {
         super(context);
+    }
+
+    public SwipeableFrameLayout(@NonNull Context context, @Nullable AttributeSet attrs) {
+        super(context, attrs);
     }
 
     public void setSwipeDismissTouchListener(SwipeDismissTouchListener touchListener) {
         mTouchListener = touchListener;
+        setOnTouchListener(touchListener);
+        setClickable(true);
     }
 
     @Override

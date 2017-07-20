@@ -9,12 +9,11 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".ExampleActivity">
 
-    <LinearLayout
+    <com.labo.kaji.swipeawaydialog.SwipeableFrameLayout
         android:id="@+id/layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center_horizontal"
-        android:background="@color/primary"
         android:orientation="vertical">
 
         <ImageView
@@ -24,6 +23,6 @@
             android:src="@drawable/logo_cloudist"
             android:text="AppCompat\nAlert" />
 
-    </LinearLayout>
+    </com.labo.kaji.swipeawaydialog.SwipeableFrameLayout>
 
 </RelativeLayout>
